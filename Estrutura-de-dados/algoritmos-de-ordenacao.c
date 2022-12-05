@@ -37,9 +37,9 @@ void bolhaMelhorado(int *vetor, int n) {
 
 void selecao (int *vetor, int n){
   int i, j, min, x;
-  for (i=0; i<=n-1; i++){
+  for (i=0; i<n-1; i++){
     min = i;
-    for (j=i+1; j<=n; j++){
+    for (j=i+1; j<n; j++){
       if (vetor[j] < vetor[min])
         min = j;
     }
@@ -58,68 +58,73 @@ void insercao (int *vetor, int tam){
   }
 }
 
+void merge(int *vetor,int ini,int meio,int fim) {
+	int i, pt1, pt2, j, tam;
+	
+	pt1 = ini;//primeira metade do vetor
+	pt2 = meio+1;//segunda metade
+  i = ini;
+  tam = fim - ini + 1;
+	
+	int *aux=(int*)malloc((tam)*sizeof(int));
+
+	while((pt1 <= meio) && (pt2 <= fim))
+	{
+		if(vetor[pt1] <= vetor[pt2])
+		{
+			aux[i] = vetor[pt1];
+			pt1++;
+		}
+		else
+		{
+			aux[i] = vetor[pt2];
+			pt2++;
+		}
+		i++;
+	}
+	
+	for(j = pt1; j <= meio; j++) //caso ainda exista elementos na primeira parte
+	{
+		aux[i] = vetor[j];
+		i++;
+	}	
+	
+	for(j=pt2; j<=fim; j++) //caso ainda exista elementos na segunda parte
+	{
+		aux[i] = vetor[j];
+		i++;
+	}	
+	
+	//Retornando os valores alocados para o vetor original
+	for(j=ini; j<=fim; j++)
+		vetor[j] = aux[j];
+	free(aux);
+}
+
 void mergeSortRecursivo(int *vetor, int posicaoInicio, int posicaoFim) {
+
+	int meio;
+
+	if(posicaoInicio == posicaoFim)
+		return;
+	else
+	{
+		meio=(posicaoInicio+posicaoFim)/2;
+		mergeSortRecursivo(vetor,posicaoInicio,meio);
+		mergeSortRecursivo(vetor,meio+1,posicaoFim);
+		merge(vetor,posicaoInicio,meio,posicaoFim);
+	}	
+}
+
+void mergeSortIterativo(int *vetor, int posicaoInicio, int posicaoFim) {
   int i, j, k, metadeTamanho, *vetorTemp;
   if(posicaoInicio == posicaoFim) return;
   metadeTamanho = (posicaoInicio + posicaoFim ) / 2;
 
-  mergeSortRecursivo(vetor, posicaoInicio, metadeTamanho);
-  mergeSortRecursivo(vetor, metadeTamanho + 1, posicaoFim);
+  mergeSortIterativo(vetor, posicaoInicio, metadeTamanho);
+  mergeSortIterativo(vetor, metadeTamanho + 1, posicaoFim);
 
-  merge(vetor, posicaoInicio, posicaoFim);
-}
-
-// void mergeSortIterativo(int *vetor, int posicaoInicio, int posicaoFim) {
-//   int i, j, k, metadeTamanho, *vetorTemp;
-//   if(posicaoInicio == posicaoFim) return;
-//   metadeTamanho = (posicaoInicio + posicaoFim ) / 2;
-
-//   mergeSortIterativo(vetor, posicaoInicio, metadeTamanho);
-//   mergeSortIterativo(vetor, metadeTamanho + 1, posicaoFim);
-
-//   merge(vetor, posicaoInicio, posicaoFim);
-// }
-
-void merge(int *vetor, int posicaoInicio, int posicaoFim) {
-
-  int i, j, k, metadeTamanho, *vetorTemp;
-
-  i = posicaoInicio;
-  j = metadeTamanho + 1;
-  k = 0;
-  vetorTemp = (int *) malloc(sizeof(int) * (posicaoFim - posicaoInicio + 1));
-
-  while(i < metadeTamanho + 1 || j  < posicaoFim + 1) {
-      if (i == metadeTamanho + 1 ) { 
-          vetorTemp[k] = vetor[j];
-          j++;
-          k++;
-      }
-      else {
-          if (j == posicaoFim + 1) {
-              vetorTemp[k] = vetor[i];
-              i++;
-              k++;
-          }
-          else {
-              if (vetor[i] < vetor[j]) {
-                  vetorTemp[k] = vetor[i];
-                  i++;
-                  k++;
-              }
-              else {
-                  vetorTemp[k] = vetor[j];
-                  j++;
-                  k++;
-              }
-          }
-      }
-
-  }
-  for(i = posicaoInicio; i <= posicaoFim; i++) {
-      vetor[i] = vetorTemp[i - posicaoInicio];
-  }
-  free(vetorTemp);
+  merge(vetor, posicaoInicio, metadeTamanho, posicaoFim);
 }
 
 void quick(int *vetor, int esq, int dir){
@@ -220,7 +225,7 @@ int main(){
   for (i = 0; i < tam; i++)
     printf("%d ", vetor[i]);
   
-  mergeSortRecursivo(vetor, 0, tam);
+  mergeSortRecursivo(vetor, 0, tam-1);
   printf("\n");
   for (i = 0; i < tam; i++)
     printf("%d ", vetor[i]);
