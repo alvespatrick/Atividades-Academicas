@@ -1,6 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #define K 100
+#define tam_bucket 100
+#define num_bucket 10
 
 void troca(int *a, int *b) {
   int aux;
@@ -9,6 +11,11 @@ void troca(int *a, int *b) {
   *a = *b;
   *b = aux;
 }
+
+typedef struct {
+  int topo;
+  int balde[tam_bucket];
+}bucket;
 
 void bolha(int *vetor, int n) {
   int i, j;
@@ -149,19 +156,98 @@ void quick(int *vetor, int esq, int dir){
     }
 }
 
-// void contagem(int *vetor, int N) {
-//   int i, j, k;
-//   int baldes [K];
+void bucket_sort(int *vetor, int N){
 
-//   for (i=0; i<K; i++)
-//     baldes[i] = 0;
-//   for(i = 0; i< N; i++)
-//     baldes[vetor[i]]++;
+  bucket b[num_bucket];                                    
+  int i,j,k;                                                 
+  for(i=0;i<num_bucket;i++)
+    b[i].topo=0;
+         
+  for(i=0;i<N;i++){                          //verifica em que balde o elemento deve ficar
+    j=(num_bucket)-1;
+      while(1){
+        if(j<0)
+          break;
+        if(vetor[i]>=j*10){
+          b[j].balde[b[j].topo]=vetor[i];
+          (b[j].topo)++;
+          break;
+        }
+        j--;
+      }
+    }
+    for(i=0;i<num_bucket;i++)
+    // ordena os baldes
+      if(b[i].topo)
+        bolha(b[i].balde,b[i].topo);
+    i=0;
+    for(j=0;j<num_bucket;j++){                    //põe os elementos dos baldes de volta no vetor
+      for(k=0;k<b[j].topo;k++){
+        vetor[i]=b[j].balde[k];
+        i++;
+      }
+    }
+}
+
+int maior(int *vetor, int tam)
+{
+	int i, pos, maior;
+	
+	i=0;
+	pos = i;
+	maior = vetor[i];
+	
+	for(i=1;i<tam;i++)
+	{
+		if(vetor[i] > maior)
+		{
+			maior = vetor[i];
+			pos = i;
+		}
+	}
+	
+	return pos;
+}
+
+void contagem(int *vetor, int N) 
+{   
+	int i, pos, k;
+	int *vetor_aux, *vetor_saida;
+	
+	pos = maior(vetor, N);
+	k = vetor[pos];
+	
+	//printf("\n Maior: %d \n", k);
+	
+	vetor_aux = (int *) malloc(sizeof(int) * (k));
+	vetor_saida = (int *) malloc(sizeof(int) * (N));
+
+	// inicializando o vetor_aux com tudo zero
+	
+	for(i=0;i<k;i++)
+		vetor_aux[i] = 0;
+		
+	for (i = 0; i < N; i++) {
+    vetor_aux[vetor[i]]++;
+  }
   
-//   for(i=0 && j=0; j<K; j++)
-//     for(k=baldes[j]; k>0; k--)
-//       vetor[i++] = j;
-// }
+	for (i = 1; i <= k; i++) {
+    vetor_aux[i] += vetor_aux[i - 1];
+  }
+  
+  // Encontre o índice de cada elemento do vetor original no vetor auxiliar e
+  // coloca os elementos no vetor de saída
+
+  for (i = N - 1; i >= 0; i--) {
+    vetor_saida[vetor_aux[vetor[i]] - 1] = vetor[i];
+    vetor_aux[vetor[i]]--;
+  }
+
+  // Copie os elementos classificados na matriz original
+  for (i = 0; i < N; i++) {
+    vetor[i] = vetor_saida[i];
+  }x
+}
 
 int main(){
   int opcao, *vetor, tam, i;
@@ -237,6 +323,28 @@ int main(){
     printf("%d ", vetor[i]);
   
   quick(vetor, 0, tam);
+  printf("\n");
+  for (i = 0; i < tam; i++)
+    printf("%d ", vetor[i]);
+
+  printf("\n\nOrdenacao por Bucket Sort\n");
+  for (i = tam-1; i>=0; i--)
+    vetor[tam-1 - i] = i;
+  for (i = 0; i < tam; i++)
+    printf("%d ", vetor[i]);
+  
+  bucket_sort(vetor, tam);
+  printf("\n");
+  for (i = 0; i < tam; i++)
+    printf("%d ", vetor[i]);
+
+  printf("\n\nOrdenacao por Contagem\n");
+  for (i = tam-1; i>=0; i--)
+    vetor[tam-1 - i] = i;
+  for (i = 0; i < tam; i++)
+    printf("%d ", vetor[i]);
+  
+  contagem(vetor, tam);
   printf("\n");
   for (i = 0; i < tam; i++)
     printf("%d ", vetor[i]);
